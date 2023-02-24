@@ -15,8 +15,9 @@ public class JDBCDemoClass {
             // here so noo is database name, root is username and password
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery("select * from employee_payroll");
+            System.out.println("ID\t" + "EmpName   " + "Salary\t" + "Date");
             while (rs.next())
-                System.out.println(rs.getInt(1) + "  " + rs.getString(2) + "  " + rs.getDouble(3) + "  " + rs.getDate(4));
+                System.out.println(rs.getInt(1) + "\t" + rs.getString(2) + "\t" + rs.getDouble(3) + "\t" + rs.getDate(4));
 
             con.close();
         } catch (Exception e) {
