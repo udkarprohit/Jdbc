@@ -3,34 +3,34 @@ import java.util.*;
 import java.sql.*;
 
 public class EmployeePayRollService {
-    static String url = "jdbc:mysql://localhost:3306/payroll_service";
-    static String userName = "root";
-    static String password = "";
+    List<EmployeePayRollData> employeePayrollDataList = new ArrayList<>();
+    public Connection driver() throws ClassNotFoundException, SQLException {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/payroll_service", "root", "");
+        return connection;
+    }
 
-    public void retrieveDataFromDatabase(String query) {
+    public List<EmployeePayRollData> retrieveDataFromDatabase(String query) {
+        List<EmployeePayRollData> employeePayrollDataList = new ArrayList<>();
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            System.out.print("The error in the class -" + e);
-        }
-        try {
-            Connection connection = DriverManager.getConnection(url, userName, password);
+            Connection connection = driver();
             Statement st = connection.createStatement();
-            System.out.println("The fetching the data is started  \n");
             ResultSet resultSet = st.executeQuery(query);
             while (resultSet.next()) {
-                System.out.println(resultSet.getInt(1)+":"+resultSet.getString(2)+":"+resultSet.getString(3)+":"+resultSet.getDouble(4)+":"+resultSet.getDate(5).toLocalDate()+":"+resultSet.getString(6)+":"+resultSet.getString(7)+":"+resultSet.getString(8)+":"+resultSet.getFloat(9)+":"+resultSet.getFloat(10)+":"+resultSet.getFloat(11)+":"+resultSet.getFloat(12)+":"+resultSet.getFloat(13));
+                EmployeePayRollData employeePayRoll = new EmployeePayRollData(resultSet.getInt(1),resultSet.getString(2),resultSet.getString(3),resultSet.getDouble(4),resultSet.getDate(5).toLocalDate(),resultSet.getString(6),resultSet.getString(7),resultSet.getString(8),resultSet.getFloat(9),resultSet.getFloat(10),resultSet.getFloat(11),resultSet.getFloat(12),resultSet.getFloat(13));
+                employeePayrollDataList.add(employeePayRoll);
             }
             st.close();
             connection.close();
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             System.out.println("The error at the Connection - " + e);
         }
+        return employeePayrollDataList;
     }
 
     public void updateDatabase(String query){
         try {
-            Connection connection =DriverManager.getConnection(url,userName,password);
+            Connection connection = driver();
             Statement statement = connection.createStatement();
             int count =statement.executeUpdate(query);
             System.out.println("The no row are updated "+ count);
@@ -38,12 +38,14 @@ public class EmployeePayRollService {
             connection.close();
         } catch (SQLException e) {
             System.out.println("Exception - "+ e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public boolean updateUsingPreparedStatement(String query) throws Exception {
         try {
-            Connection connection =DriverManager.getConnection(url,userName,password);
+            Connection connection = driver();
             PreparedStatement statement = connection.prepareStatement(query);
             boolean response = statement.execute();
             if (response) {
@@ -60,38 +62,46 @@ public class EmployeePayRollService {
         }
     }
 
-    public void getPayrollDataByName(String name) {
+    public List<EmployeePayRollData> getPayrollDataByName(String name) {
+        List<EmployeePayRollData> employeePayRollData = new ArrayList<>();
         try {
-            Connection connection =DriverManager.getConnection(url,userName,password);
+            Connection connection = driver();
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM employee_payroll WHERE name = ?");
             preparedStatement.setString(1, name);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                System.out.println(resultSet.getInt(1)+":"+resultSet.getString(2)+":"+resultSet.getString(3)+":"+resultSet.getDouble(4)+":"+resultSet.getDate(5).toLocalDate()+":"+resultSet.getString(6)+":"+resultSet.getString(7)+":"+resultSet.getString(8)+":"+resultSet.getFloat(9)+":"+resultSet.getFloat(10)+":"+resultSet.getFloat(11)+":"+resultSet.getFloat(12)+":"+resultSet.getFloat(13));
+                EmployeePayRollData employeePayRoll = new EmployeePayRollData(resultSet.getInt(1),resultSet.getString(2),resultSet.getString(3),resultSet.getDouble(4),resultSet.getDate(5).toLocalDate(),resultSet.getString(6),resultSet.getString(7),resultSet.getString(8),resultSet.getFloat(9),resultSet.getFloat(10),resultSet.getFloat(11),resultSet.getFloat(12),resultSet.getFloat(13));
+                employeePayRollData.add(employeePayRoll);
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
+        return employeePayRollData;
     }
 
-    public void getPayrollDataByDate() {
-
+    public List<EmployeePayRollData> getPayrollDataByDate() {
+        List<EmployeePayRollData> employeePayRollData = new ArrayList<>();
         try {
-            Connection connection =DriverManager.getConnection(url,userName,password);
-            PreparedStatement preparedStatement  = connection.prepareStatement("SELECT * FROM employee_payroll WHERE start between cast('2022-07-12' as date) and cast('2022-08-22' as date)");
+            Connection connection = driver();
+            PreparedStatement preparedStatement  = connection.prepareStatement("SELECT * FROM employee_payroll WHERE start between cast('2005-12-11' as date) and cast('2020-12-06' as date)");
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                System.out.println(resultSet.getInt(1)+":"+resultSet.getString(2)+":"+resultSet.getString(3)+":"+resultSet.getDouble(4)+":"+resultSet.getDate(5).toLocalDate()+":"+resultSet.getString(6)+":"+resultSet.getString(7)+":"+resultSet.getString(8)+":"+resultSet.getFloat(9)+":"+resultSet.getFloat(10)+":"+resultSet.getFloat(11)+":"+resultSet.getFloat(12)+":"+resultSet.getFloat(13));
+                EmployeePayRollData employeePayRoll = new EmployeePayRollData(resultSet.getInt(1),resultSet.getString(2),resultSet.getString(3),resultSet.getDouble(4),resultSet.getDate(5).toLocalDate(),resultSet.getString(6),resultSet.getString(7),resultSet.getString(8),resultSet.getFloat(9),resultSet.getFloat(10),resultSet.getFloat(11),resultSet.getFloat(12),resultSet.getFloat(13));
+                employeePayRollData.add(employeePayRoll);
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
+        return employeePayRollData;
     }
 
     public void sumAvgMinMaxCount() {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/payroll_service", "root", "");
+            Connection connection = driver();
             PreparedStatement stmt = connection.prepareStatement(
                     "SELECT " +
                             "    gender, " +
@@ -105,7 +115,6 @@ public class EmployeePayRollService {
 
             // Execute the query
             ResultSet rs = stmt.executeQuery();
-
             // Process the results
             while (rs.next()) {
                 String gender = rs.getString("gender");
@@ -129,17 +138,62 @@ public class EmployeePayRollService {
             throw new RuntimeException(e);
         }
     }
+    public boolean addEMployeePayRollToDataBase() throws Exception {
+        try {
+            Connection connection = driver();
+            PreparedStatement statement = connection.prepareStatement("insert into employee_payroll(name,gender,salary,start,phoneNumber,address,department,basic_pay,deductions,taxable_pay,net_pay) values('Rahiman','M',200000,'2010-12-06','7598130306','Kurnool','HR',25000.0,24650.00,43500.00,76456.00);");
+            boolean response = statement.execute();
+            if (response) {
+                ResultSet resultSet = statement.getResultSet();
+                while (resultSet.next())
+                    System.out.println(resultSet.getInt(1));
+            } else {
+                int count = statement.getUpdateCount();
+                System.out.println(count);
+            }
+            return response;
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+    public EmployeePayRollData getLastIdObject() {
+        EmployeePayRollData employeePayRoll = null;
+        try {
+            Connection connection = driver();
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM employee_payroll ORDER BY id desc limit 1;");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                employeePayRoll = new EmployeePayRollData(resultSet.getInt(1), resultSet.getString(2), resultSet.getString(3), resultSet.getDouble(4), resultSet.getDate(5).toLocalDate(), resultSet.getString(6), resultSet.getString(7), resultSet.getString(8), resultSet.getFloat(9), resultSet.getFloat(10), resultSet.getFloat(11), resultSet.getFloat(12), resultSet.getFloat(13));
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+        return employeePayRoll;
+    }
+    private void addEmployeeToEmployeeObject() {
+        EmployeePayRollService employeePayRoll = new EmployeePayRollService();
+        EmployeePayRollData newEmployee = getLastIdObject();
+        employeePayRoll.employeePayrollDataList.add(newEmployee);
+    }
     public static void main(String[] args) throws Exception {
         EmployeePayRollService employeePayRollService = new EmployeePayRollService();
-        employeePayRollService.retrieveDataFromDatabase("select * from employee_payroll");
+        System.out.println(employeePayRollService.retrieveDataFromDatabase("select * from employee_payroll"));
         employeePayRollService.updateDatabase("update employee_payroll set salary = 3000000.0 where name = 'Terissa' ");
-        employeePayRollService.retrieveDataFromDatabase("select * from employee_payroll");
+        System.out.println(employeePayRollService.retrieveDataFromDatabase("select * from employee_payroll"));
         employeePayRollService.updateUsingPreparedStatement("update employee_payroll set salary = 3000000.0 where name = 'Terissa'");
-        employeePayRollService.retrieveDataFromDatabase("select * from employee_payroll");
-        employeePayRollService.getPayrollDataByName("sreeja");
-        employeePayRollService.getPayrollDataByDate();
-        employeePayRollService.retrieveDataFromDatabase("select * from employee_payroll");
+        System.out.println(employeePayRollService.retrieveDataFromDatabase("select * from employee_payroll"));
+        System.out.println(employeePayRollService.getPayrollDataByName("Prasanth"));
+        System.out.println(employeePayRollService.getPayrollDataByDate());
+        System.out.println(employeePayRollService.retrieveDataFromDatabase("select * from employee_payroll"));
         employeePayRollService.sumAvgMinMaxCount();
-
+        System.out.println(employeePayRollService.retrieveDataFromDatabase("select * from employee_payroll"));
+        boolean addEmployee = employeePayRollService.addEMployeePayRollToDataBase();
+        if(!addEmployee){
+            employeePayRollService.addEmployeeToEmployeeObject();
+        }
+        else {
+            System.out.println("Employee not added");
+        }
+        System.out.println(employeePayRollService.retrieveDataFromDatabase("select * from employee_payroll"));
     }
 }
